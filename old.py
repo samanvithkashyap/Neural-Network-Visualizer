@@ -84,12 +84,11 @@ with st.sidebar:
     noise = st.slider("Dataset Noise", 0.0, 0.5, 0.15)
     
     st.header("🧠 Architecture")
-    input_size_viz = st.number_input("Input Layer Neurons", min_value=1, max_value=20, value=7)
+    input_size_viz = st.number_input("Input Layer Neurons", min_value=1, max_value=20, value=3)
     num_hidden = st.slider("Number of Hidden Layers", 0, 5, 2)
     hidden_sizes = []
     for i in range(num_hidden):
-        # The key was incorrect for layer 2, corrected to h_1 from h_0
-        size = st.number_input(f"Hidden Layer {i+1}", min_value=1, max_value=20, value=4, key=f"h_{i}")
+        size = st.number_input(f"Hidden Layer {i+1}", min_value=1, max_value=20, value=8, key=f"h_{i}")
         hidden_sizes.append(size)
     output_size_viz = st.number_input("Output Layer Neurons", min_value=1, max_value=20, value=1)
     activation = st.selectbox("Activation Function", ["relu", "sigmoid", "tanh"])
@@ -159,19 +158,25 @@ with tab2:
         net = Network(height="750px", width="100%", bgcolor="#222222", font_color="white", notebook=True, directed=True)
 
         if not physics:
+            # Disable physics for a static, clean layout
             net.set_options('var options = { "physics": { "enabled": false } }')
         else:
+            # Enable physics for an interactive layout
             net.set_options("""
             var options = { "physics": { "barnesHut": { "gravitationalConstant": -30000, "springLength": 250, "springConstant": 0.05 }}}
             """)
 
+        # --- Manual Positioning Algorithm ---
+        # This calculates precise X and Y coordinates for a clean, symmetrical layout.
         all_layers = [input_n] + hidden_layers + [output_n]
         total_layers = len(all_layers)
         X_SPACING = 300
         Y_SPACING = 100
 
+        # Add Nodes with calculated positions
         for i, layer_size in enumerate(all_layers):
             layer_x = i * X_SPACING
+            # Calculate the starting Y to center the layer vertically
             start_y = -((layer_size - 1) * Y_SPACING) / 2.0
             
             for j in range(layer_size):
@@ -185,11 +190,13 @@ with tab2:
                 else:
                     label, color = f"H{i}_{j+1}", "#FF6B6B"
                 
+                # For static layout, set fixed positions and disable physics for the node
                 if not physics:
                     net.add_node(node_id, label=label, color=color, x=layer_x, y=node_y, physics=False)
                 else:
                     net.add_node(node_id, label=label, color=color)
 
+        # Add Edges
         for i in range(total_layers - 1):
             for j in range(all_layers[i]):
                 for k in range(all_layers[i+1]):
@@ -197,6 +204,7 @@ with tab2:
                     to_node = f"{i+1}_{k}"
                     net.add_edge(from_node, to_node)
         
+        # Add Activation Node (positioned after the output layer)
         act_x = total_layers * X_SPACING
         net.add_node(
             "activation", label=activation_fn, shape="box", color="#F7B801",
@@ -207,6 +215,7 @@ with tab2:
             
         return net
 
+    # Build and display the graph using the sidebar controls
     graph = build_network_graph(input_size_viz, hidden_sizes, output_size_viz, activation, physics_enabled)
     
     try:
@@ -215,9 +224,6 @@ with tab2:
         graph.save_graph(file_path)
         with open(file_path, 'r', encoding='utf-8') as f:
             html_data = f.read()
-        
-        # --- THIS IS THE CORRECTED LINE ---
-        components.html(html_data, height=770)
-
+        components.html(html_data, height=800, scrolling=True)
     except Exception as e:
         st.error(f"Error displaying graph: {e}")
