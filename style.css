@@ -1,0 +1,24 @@
+/* General Body Styles */
+body {
+    font-family: 'Helvetica Neue', sans-serif;
+    color: #FAFAFA;
+    background-color: #1E1E1E;
+}
+
+/* Main Title */
+h1 {
+    color: #00C4A5;
+    text-align: center;
+    padding-top: 1rem;
+}
+
+/* Sidebar Styling */
+.css-1d391kg {
+    background-color: #2C3E50;
+    padding: 2rem;
+}
+
+/* Input Widget Styling */
+.stNumberInput, .stSelectbox {
+    margin-bottom: 1.5rem;
+}
