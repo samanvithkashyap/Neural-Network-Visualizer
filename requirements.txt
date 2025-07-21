@@ -1,6 +1,6 @@
 streamlit
 pyvis
 scikit-learn
-torch
+tensorflow
 matplotlib
 seaborn
